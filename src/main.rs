@@ -3,10 +3,10 @@
 mod cli;
 
 use threadpool::ThreadPool;
-use std::fs::File;
+use std::fs::{ File, remove_file };
 use std::io::prelude::*;
 use std::path::PathBuf;
-use std::time::{Instant};
+use std::time::{ Instant };
 use byte_unit::Byte;
 
 fn main() {
@@ -15,6 +15,7 @@ fn main() {
     let n_jobs = args.value_of("threads").unwrap().parse::<usize>().expect("Wrong blocksize argument value");
     let blocksize = args.value_of("blocksize").unwrap().parse::<u32>().expect("Wrong blocksize argument value");
     let blocknum = args.value_of("blocknum").unwrap().parse::<u32>().expect("Wrong blocknum argument value");
+    let clean = args.is_present("clean");
     let n_workers = n_jobs * 2;
 
     let pool = ThreadPool::new(n_workers);
@@ -25,13 +26,16 @@ fn main() {
             let filename = format!("{}/foo{}.txt", path.to_str().unwrap(), i);
             println!("Spawned thread {}, writing to {}", i, filename);
             let now = Instant::now();
-            let mut file = File::create(filename).expect("Cannot create file");
+            let mut file = File::create(filename.clone()).expect("Cannot create file");
             let random_bytes: Vec<u8> = (0..blocksize).map(|_| {rand::random::<u8>()}).collect();
             for _ in 0..blocknum {
                 file.write_all(&random_bytes).expect("Cannot write to file");
             }
             file.sync_all().expect("Cannot sync the file");
             let elapsed = now.elapsed();
+            if clean {
+                remove_file(filename).expect("Cannot remove file");
+            }
             println!("Finished thread {} in {}.{}s, wrote {}",
                         i,
                         elapsed.as_secs(),

@@ -38,5 +38,11 @@ pub fn cli() -> App<'static, 'static> {
             .default_value("1000")
             .help("Set number of blocks to be written by each thread"),
         )
+        .arg(
+            Arg::with_name("clean")
+            .short("d")
+            .long("clean")
+            .help("Remove created files after test finished"),
+        )
 
 }
