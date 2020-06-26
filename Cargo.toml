@@ -1,0 +1,11 @@
+[package]
+name = "IoTest"
+version = "0.1.0"
+authors = ["Mikhail Lappo <mikhail.lappo@esrlabs.com>"]
+edition = "2018"
+
+[dependencies]
+threadpool = "1.8.1"
+rand = ""
+clap = ""
+byte-unit = ""
